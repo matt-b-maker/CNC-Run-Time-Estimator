@@ -1,20 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using EPDM.Interop.epdm;
 using OfficeOpenXml;
 using SolidWorks.Interop.sldworks;
@@ -32,7 +21,7 @@ namespace WPFSWTry
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
-        public async void button_Click(object sender, RoutedEventArgs e)
+        public async void Button_Click(object sender, RoutedEventArgs e)
         {
             BoxBoi.Text = "";
 
@@ -174,7 +163,7 @@ namespace WPFSWTry
             CurrentVault.LoginAuto("CreativeWorks", 0);
 
             //Set up search functionality
-            IEdmSearchResult5 _searchResult = null;
+            IEdmSearchResult5 _searchResult;
             IEdmSearch9 _search = (IEdmSearch9)CurrentVault.CreateSearch2();
             _search.FindFolders = true;
 
@@ -416,17 +405,6 @@ namespace WPFSWTry
         //For calculating time
         static double GetTime(double distance, double speed)
         {
-            /*
-            if (double.IsNaN(distance))
-            {
-                return 0;
-            }
-            else
-            {
-                double time = (distance / speed);
-                return Math.Abs(time);
-            } 
-            */
             double time = (distance / speed);
             return Math.Abs(time);
         }
@@ -489,8 +467,7 @@ namespace WPFSWTry
             string cncPath = null;
 
             //Run the search
-            string[] searchTerms = { "DocumentNumber" };
-            SearchForCNC(_search, searchTerms, prodNum);
+            SearchForCNC(_search, prodNum);
 
             //Check for exception
             if (ExceptionEncountered)
@@ -501,35 +478,12 @@ namespace WPFSWTry
             {
                 _searchResult = _search.GetFirstResult();
             }
-            
-            /*
-            if (_searchResult == null)
-            {
-                _search.Clear();
-                _search.StartFolderID = CurrentVault.GetFolderFromPath("C:\\CreativeWorks").ID;
-                SearchForNEST(_search, searchTerms, prodNum);
-            }
-
-            //Check for exception
-            if (ExceptionEncountered)
-            {
-                _searchResult = null;
-            }
-            else
-            {
-                _searchResult = _search.GetFirstResult();
-            }
-            */
 
             //Iterate through all found files and add them to the list of potentials
             if (_searchResult != null)
             {
                 while (_searchResult != null)
                 {
-                    /*
-                    Console.WriteLine("Name: " + _searchResult.Name);
-                    Console.WriteLine("Path: " + _searchResult.Path);
-                    */
                     prodCncFiles.Add(_searchResult);
                     _searchResult = _search.GetNextResult();
                 }
@@ -727,41 +681,9 @@ namespace WPFSWTry
         }//For the PDM search ALGO
 
         //Searches for the first directory
-        private static void SearchForCNC(IEdmSearch9 _search, string[] searchTerms, string prodNum)
+        private static void SearchForCNC(IEdmSearch9 _search, string prodNum)
         {
             _search.FileName = "PROD-" + prodNum + " CNC.SLDASM";
-        }//For the PDM search ALGO
-
-        private static void SearchForNEST(IEdmSearch9 _search, string[] searchTerms, string prodNum)
-        {
-            _search.AddMultiVariableCondition(searchTerms, prodNum);
-            _search.AddVariable("DocumentNumber", "NEST");
-        }//For the PDM search ALGO
-
-        //Need to figure this part out
-        private static async Task Spinner(IEdmSearchResult5 _searchResult)
-        {
-            Console.WriteLine();
-            string searching = "Searching";
-            await Task.Run(() =>
-            {
-                while (_searchResult == null)
-                {
-                    if (searching == "Searching")
-                    {
-                        for (int i = 0; i < 4; i++)
-                        {
-                            Console.SetCursorPosition(0, Console.CursorTop);
-                            Console.Write(searching);
-                            Task.Delay(1000).Wait();
-                            searching += ".";
-                        }
-                        Console.SetCursorPosition(0, Console.CursorTop);
-                        Console.Write("                             ", Console.BufferWidth);
-                        searching = "Searching";
-                    }
-                }
-            });
         }//For the PDM search ALGO
 
         //Cuts path down to the folder 
