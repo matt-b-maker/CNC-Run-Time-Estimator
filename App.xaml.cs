@@ -13,5 +13,6 @@ namespace WPFSWTry
     /// </summary>
     public partial class App : Application
     {
+    //This is empty
     }
 }
